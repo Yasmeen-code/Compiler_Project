@@ -1,5 +1,4 @@
-# lexer.py
-from tokens import Token, NUMBER, PLUS, MINUS, MUL, DIV, GE, LE, LT, NE, INCREMENT, DECREMENT, LPAREN, RPAREN, LBRACE, RBRACE, ID, ASSIGN, END, COMMA, IF, ELSE, ELIF, FOR, IN, TO, DO, PRINT, INPUT, EOF, KEYWORDS
+from tokens import Token, NUMBER, PLUS, MINUS, MUL, DIV, GE, LE, LT, NE, INCREMENT, DECREMENT, LPAREN, RPAREN, LBRACE, RBRACE, ID, ASSIGN, END, COMMA, IF, ELSE, ELIF, FOR, DO, PRINT, INPUT, EOF, KEYWORDS
 
 class Lexer:
     def __init__(self, text):
@@ -62,7 +61,6 @@ class Lexer:
             if self.current_char.isalpha():
                 return self.read_word()
             
-            # >=
             if self.current_char == '>':
                 if self.peek() == '=':
                     self.advance()
@@ -70,19 +68,21 @@ class Lexer:
                     return Token(GE, '>=')
                 else:
                     self.advance()
-                    return Token(LT, '>')  # نستخدم LT كـ greater than مؤقتاً أو نضيف GT
+                    return Token(LT, '>')
             
-            # <=
             if self.current_char == '<':
                 if self.peek() == '=':
                     self.advance()
                     self.advance()
                     return Token(LE, '<=')
+                elif self.peek() == '>':
+                    self.advance()
+                    self.advance()
+                    return Token(NE, '<>')
                 else:
                     self.advance()
                     return Token(LT, '<')
             
-            # != أو <>
             if self.current_char == '!':
                 if self.peek() == '=':
                     self.advance()
@@ -91,13 +91,6 @@ class Lexer:
                 else:
                     raise Exception(f"Error: Unknown character '!' (did you mean != ?)")
             
-            if self.current_char == '<':
-                if self.peek() == '>':
-                    self.advance()
-                    self.advance()
-                    return Token(NE, '<>')
-            
-            # ++
             if self.current_char == '+':
                 if self.peek() == '+':
                     self.advance()
@@ -107,7 +100,6 @@ class Lexer:
                     self.advance()
                     return Token(PLUS, '+')
             
-            # --
             if self.current_char == '-':
                 if self.peek() == '-':
                     self.advance()
