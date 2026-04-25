@@ -1,5 +1,4 @@
-# parser.py
-from tokens import NUMBER, PLUS, MINUS, MUL, DIV, GE, LE, LT, NE, INCREMENT, DECREMENT, LPAREN, RPAREN, LBRACE, RBRACE, ID, ASSIGN, END, COMMA, IF, ELSE, ELIF, FOR, IN, TO, DO, PRINT, INPUT, EOF
+from tokens import NUMBER, PLUS, MINUS, MUL, DIV, GE, LE, LT, NE, INCREMENT, DECREMENT, LPAREN, RPAREN, LBRACE, RBRACE, ID, ASSIGN, END, COMMA, IF, ELSE, ELIF, FOR, DO, PRINT, INPUT, EOF
 
 class TreeNode:
     def __init__(self, name, value=None):
@@ -64,7 +63,6 @@ class Parser:
     def statement(self):
         node = TreeNode("Statement")
         
-        # ========== IF ==========
         if self.current_token.type == IF:
             node.add(TreeNode("Keyword", "if"))
             self.eat(IF)
@@ -82,11 +80,9 @@ class Parser:
             else:
                 self.errors.append("Expected 'end' after if condition")
             
-            # { أو do (body)
             body = self.block()
             node.add(body)
             
-            # else / elif
             while self.current_token.type in (ELSE, ELIF):
                 if self.current_token.type == ELIF:
                     elif_node = TreeNode("Elif")
@@ -117,31 +113,26 @@ class Parser:
                     else_node.add(else_body)
                     node.add(else_node)
             
-            # end (إغلاق if)
             if self.current_token.type == END:
                 node.add(TreeNode("End", "end"))
                 self.eat(END)
         
-        # ========== FOR ==========
         elif self.current_token.type == FOR:
             node.add(TreeNode("Keyword", "for"))
             self.eat(FOR)
             
             self.eat(LPAREN)
             
-            # init: i = 0
             init = self.for_init()
             node.add(init)
             
             self.eat(COMMA)
             
-            # condition: i < 10
             cond = self.condition()
             node.add(cond)
             
             self.eat(COMMA)
             
-            # update: i ++
             update = self.for_update()
             node.add(update)
             
@@ -151,16 +142,13 @@ class Parser:
                 node.add(TreeNode("End", "end"))
                 self.eat(END)
             
-            # body
             body = self.block()
             node.add(body)
             
-            # end (إغلاق for)
             if self.current_token.type == END:
                 node.add(TreeNode("End", "end"))
                 self.eat(END)
         
-        # ========== PRINT ==========
         elif self.current_token.type == PRINT:
             node.add(TreeNode("Keyword", "print"))
             self.eat(PRINT)
@@ -181,7 +169,6 @@ class Parser:
             else:
                 self.errors.append("Expected 'end' after print")
         
-        # ========== INPUT ==========
         elif self.current_token.type == INPUT:
             node.add(TreeNode("Keyword", "input"))
             self.eat(INPUT)
@@ -202,7 +189,6 @@ class Parser:
             else:
                 self.errors.append("Expected 'end' after input")
         
-        # ========== ASSIGNMENT ==========
         elif self.current_token.type == ID:
             id_node = TreeNode("Identifier", self.current_token.value)
             node.add(id_node)
@@ -219,7 +205,6 @@ class Parser:
             else:
                 self.errors.append("Expected 'end' after statement")
         
-        # ========== EXPRESSION ==========
         else:
             expr = self.expression()
             node.add(expr)
@@ -233,7 +218,6 @@ class Parser:
         return node
     
     def block(self):
-        """{ StatementList } أو do StatementList end"""
         node = TreeNode("Block")
         
         if self.current_token.type == LBRACE:
@@ -250,14 +234,12 @@ class Parser:
                 self.eat(END)
         
         else:
-            # statement واحد بدون قوسين
             stmt = self.statement()
             node.add(stmt)
         
         return node
     
     def for_init(self):
-        """i = 0"""
         node = TreeNode("ForInit")
         
         if self.current_token.type == ID:
@@ -272,12 +254,10 @@ class Parser:
         return node
     
     def for_update(self):
-        """i ++ أو i -- أو i = i + 1"""
         node = TreeNode("ForUpdate")
         
         if self.current_token.type == ID:
-            id_node = TreeNode("Identifier", self.current_token.value)
-            node.add(id_node)
+            node.add(TreeNode("Identifier", self.current_token.value))
             self.eat(ID)
             
             if self.current_token.type == INCREMENT:
